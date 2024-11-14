@@ -38,6 +38,9 @@ int main(int argc, char *argv[]) {
       exit_status = 1;
   }
 
+  if (!exit_status) {
+    
+
   FILE *fp = NULL;
   int lineNumber = 1, prevEmpty = 0;
   char *line = NULL;
@@ -61,6 +64,6 @@ int main(int argc, char *argv[]) {
     fp = NULL;
   }
 
-  free(line);
+  free(line); }
   return exit_status;
 }

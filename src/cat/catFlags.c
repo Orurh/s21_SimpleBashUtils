@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
-void PrintSpecialChar(unsigned char c, CatFlags *flags) {
+void PrintSpecialChar(int c, CatFlags *flags) {
   if (flags->showTabs && c == '\t')
     printf("^I");
   else if (flags->showHiddensimv &&
@@ -30,7 +30,8 @@ void PrintLineWithOptions(const char *line, int *lineNumber, CatFlags *flags,
 
     size_t len = strlen(line);
     for (size_t i = 0; i < len; i++) {
-      unsigned char c = (unsigned char)line[i];
+      // unsigned char c = (unsigned char)line[i]t)(unsigned);
+      int c = (int)(unsigned char)line[i];
       PrintSpecialChar(c, flags);
     }
   }

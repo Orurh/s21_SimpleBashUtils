@@ -1,5 +1,5 @@
 FLAGS=-Wall -Wextra -Werror
-CC=GCC
+CC=gcc
 
 
 
