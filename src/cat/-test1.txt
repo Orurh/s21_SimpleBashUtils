@@ -1,0 +1,24 @@
+Summary: in this tutorial, you will learn how to develop a C file exists function that checks if a file exists using various C standard library functions.
+
+Sometimes, you want to check if a file exists before reading from or writing to the file. However, C does not provide any standard function to check if a file exists.
+
+Fortunately, you can use other functions from the standard library to develop your own function check if a file exists or not. The functions that we?ll use to check for the existence of a file are:
+
+	fopen()
+	stat()
+	access()
+
+
+
+
+
+The *filename is the path to a file that you want to check. The valid value for the how flag is
+
+
+
+	R_OK ? test for the read permission
+	W_OK ? test for the write permission
+	X_OK ? test for the execute permission
+	F_OK ? test for the existence of the file.
+
+The access() function returns 0 if the access is permitted, or -1 otherwise.
