@@ -11,59 +11,58 @@ int main(int argc, char *argv[]) {
   CatFlags flags = {0};
 
   struct option long_options[] = {
-      {"number-nonblank", no_argument, &flags.numberNonblank, 1},
-      {"number", no_argument, &flags.numberAll, 1},
-      {"squeeze-blank", no_argument, &flags.squeezeBlank, 1},
+      {"number-nonblank", no_argument, &flags.number_nonblanck, 1},
+      {"number", no_argument, &flags.number_all, 1},
+      {"squeeze-blank", no_argument, &flags.squeeze_blank, 1},
       {0, 0, 0, 0}};
 
   while ((opt = getopt_long(argc, argv, "bnsevtET", long_options, NULL)) !=
          -1) {
     if (opt == 'b')
-      flags.numberNonblank = 1;
+      flags.number_nonblanck = 1;
     else if (opt == 'n')
-      flags.numberAll = 1;
+      flags.number_all = 1;
     else if (opt == 's')
-      flags.squeezeBlank = 1;
+      flags.squeeze_blank = 1;
     else if (opt == 'e')
-      flags.showEnds = flags.showHiddensimv = 1;
+      flags.show_ends = flags.show_hiddensimv = 1;
     else if (opt == 't')
-      flags.showTabs = flags.showHiddensimv = 1;
+      flags.show_tabs = flags.show_hiddensimv = 1;
     else if (opt == 'v')
-      flags.showHiddensimv = 1;
+      flags.show_hiddensimv = 1;
     else if (opt == 'E')
-      flags.showEnds = 1;
+      flags.show_ends = 1;
     else if (opt == 'T')
-      flags.showTabs = 1;
+      flags.show_tabs = 1;
     else if (opt == '?')
       exit_status = 1;
   }
 
   if (!exit_status) {
-    
+    FILE *fp = NULL;
+    int lineNumber = 1, prevEmpty = 0;
+    char *line = NULL;
+    size_t lineSize = 0;
 
-  FILE *fp = NULL;
-  int lineNumber = 1, prevEmpty = 0;
-  char *line = NULL;
-  size_t lineSize = 0;
+    if (optind >= argc) fp = stdin;
 
-  if (optind >= argc) fp = stdin;
-
-  for (int i = optind; i < argc || (optind >= argc && fp); i++) {
-    if (i < argc) {
-      if (!(fp = fopen(argv[i], "r"))) {
-        perror(argv[i]);
-        continue;
+    for (int i = optind; i < argc || (optind >= argc && fp); i++) {
+      if (i < argc) {
+        if (!(fp = fopen(argv[i], "r"))) {
+          perror(argv[i]);
+          continue;
+        }
       }
+
+      while (getline(&line, &lineSize, fp) != -1) {
+        PrintLineWithOptions(line, &lineNumber, &flags, &prevEmpty);
+      }
+
+      if (fp && fp != stdin) fclose(fp);
+      fp = NULL;
     }
 
-    while (getline(&line, &lineSize, fp) != -1) {
-      PrintLineWithOptions(line, &lineNumber, &flags, &prevEmpty);
-    }
-
-    if (fp && fp != stdin) fclose(fp);
-    fp = NULL;
+    free(line);
   }
-
-  free(line); }
   return exit_status;
 }

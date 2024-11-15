@@ -4,14 +4,14 @@
 #include <string.h>
 
 void PrintSpecialChar(int c, CatFlags *flags) {
-  if (flags->showTabs && c == '\t')
+  if (flags->show_tabs && c == '\t')
     printf("^I");
-  else if (flags->showHiddensimv &&
+  else if (flags->show_hiddensimv &&
            ((c < 32 && c != '\n' && c != '\t') || c == 127))
     printf("^%c", c + 64);
-  else if (flags->showHiddensimv && c >= 128 && c < 160)
+  else if (flags->show_hiddensimv && c >= 128 && c < 160)
     printf("M-^%c", c - 128 + 64);
-  else if (flags->showEnds && c == '\n')
+  else if (flags->show_ends && c == '\n')
     printf("$\n");
   else
     putchar(c);
@@ -21,10 +21,10 @@ void PrintLineWithOptions(const char *line, int *lineNumber, CatFlags *flags,
                           int *prevEmpty) {
   int is_empty = (line[0] == '\n');
 
-  if (!(flags->squeezeBlank && *prevEmpty && is_empty)) {
-    if (flags->numberAll && !(flags->numberNonblank && is_empty)) {
+  if (!(flags->squeeze_blank && *prevEmpty && is_empty)) {
+    if (flags->number_all && !(flags->number_nonblanck && is_empty)) {
       printf("%6d\t", (*lineNumber)++);
-    } else if (flags->numberNonblank && !is_empty) {
+    } else if (flags->number_nonblanck && !is_empty) {
       printf("%6d\t", (*lineNumber)++);
     }
 

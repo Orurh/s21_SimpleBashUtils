@@ -1,8 +1,6 @@
 FLAGS=-Wall -Wextra -Werror
 CC=gcc
 
-
-
 all: s21_cat
 
 s21_cat: s21_cat.o catFlags.o
@@ -16,9 +14,6 @@ catFlags.o: catFlags.c
 
 
 clean:
-	rm -rf *.o 
+	rm -rf *.o s21_cat 
 
-fclean: clean
-	rm -rf s21_cat
-
-re: fclean all
+rebuild:  all

@@ -4,12 +4,12 @@
 
 
 typedef struct {
-    int numberAll;
-    int numberNonblank;
-    int squeezeBlank;
-    int showEnds;
-    int showTabs;
-    int showHiddensimv;
+    int number_all;
+    int number_nonblanck;
+    int squeeze_blank;
+    int show_ends;
+    int show_tabs;
+    int show_hiddensimv;
 } CatFlags;
 
 
