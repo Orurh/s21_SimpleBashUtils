@@ -28,14 +28,16 @@ check_files() {
 }
 
 check_files ""
-
-# flags=("-b" "-n" "-e" "-s" "-t" "--number-nonblank" "--number" "--squeeze-blank")
-flags=("-v" "-b" "-n" "-e" "-s" "-t" "--number-nonblank" "--number" "--squeeze-blank")
+#for linux
+# flags=("-b" "-n" "-e" "-s" "-t" "-E" "-T" "--number-nonblank" "--number" "--squeeze-blank") 
+#for mac
+flags=("-v" "-b" "-n" "-e" "-s" "-t" )
 
 echo -e "\033[1;33mПроверка с одиночными флагами:\033[0m"
 for flag in "${flags[@]}"; do
     check_files "$flag"
 done
+
 
 # if 
 # echo -e "\033[1;33mПроверка всех комбинаций из двух флагов:\033[0m"

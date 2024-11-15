@@ -32,13 +32,13 @@ int InitializeFlags(GrepFlags *flags, int argc, char *argv[]) {
         break;
       case 'c':
         flags->c_flag = 1;
-        flags->pattern = optarg;
         break;
       case 'l':
         flags->l_flag = 1;
         break;
       case 'n':
         flags->n_flag = 1;
+        flags->e_flag = 1;
         break;
       default:
         return_flag = EXIT_FAILURE;
