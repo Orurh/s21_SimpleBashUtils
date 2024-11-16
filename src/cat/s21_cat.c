@@ -1,9 +1,12 @@
+#define _POSIX_C_SOURCE 200809L
+
 #include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "catFlags.h"
+
 
 int main(int argc, char *argv[]) {
   int opt;
@@ -44,7 +47,8 @@ int main(int argc, char *argv[]) {
     char *line = NULL;
     size_t lineSize = 0;
 
-    if (optind >= argc) fp = stdin;
+    if (optind >= argc)
+      fp = stdin;
 
     for (int i = optind; i < argc || (optind >= argc && fp); i++) {
       if (i < argc) {
@@ -58,7 +62,8 @@ int main(int argc, char *argv[]) {
         PrintLineWithOptions(line, &lineNumber, &flags, &prevEmpty);
       }
 
-      if (fp && fp != stdin) fclose(fp);
+      if (fp && fp != stdin)
+        fclose(fp);
       fp = NULL;
     }
 
