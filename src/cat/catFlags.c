@@ -7,8 +7,10 @@ void PrintSpecialChar(int c, CatFlags *flags) {
   if (flags->show_tabs && c == '\t')
     printf("^I");
   else if (flags->show_hiddensimv &&
-           ((c < 32 && c != '\n' && c != '\t') || c == 127))
+    ((c < 32 && c != '\n' && c != '\t')))
     printf("^%c", c + 64);
+  else if (flags->show_hiddensimv && c == 127) 
+    printf("^?");
   else if (flags->show_hiddensimv && c >= 128 && c < 160)
     printf("M-^%c", c - 128 + 64);
   else if (flags->show_ends && c == '\n')

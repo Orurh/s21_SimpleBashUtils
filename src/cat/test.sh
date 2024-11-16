@@ -1,6 +1,6 @@
 #!/bin/bash
 
-filename="test2.txt"
+filename="test1.txt"
 
 check_files() {
     flags="$1"
@@ -18,7 +18,7 @@ check_files() {
     fi
     
     if diff -u s21_cat.txt cat.txt; then
-        echo "Файлы s21_cat.txt и cat.txt идентичны"
+        echo -e "\033[1;32mФайлы s21_cat.txt и cat.txt идентичны\033[0m"
     else
         echo -e "\033[1;31mФайлы s21_cat.txt и cat.txt отличаются\033[0m"
     fi
@@ -29,9 +29,9 @@ check_files() {
 
 check_files ""
 #for linux
-# flags=("-b" "-n" "-e" "-s" "-t" "-E" "-T" "--number-nonblank" "--number" "--squeeze-blank") 
-#for mac
-flags=("-v" "-b" "-n" "-e" "-s" "-t" )
+flags=("-b" "-n" "-e" "-s" "-t" "-E" "-T" "--number-nonblank" "--number" "--squeeze-blank") 
+# #for mac
+# flags=("-v" "-b" "-n" "-e" "-s" "-t" )
 
 echo -e "\033[1;33mПроверка с одиночными флагами:\033[0m"
 for flag in "${flags[@]}"; do
