@@ -12,47 +12,43 @@ void PrintSpecialChar(int c, CatFlags *flags) {
     printf("^?");
   else if (flags->show_hiddensimv && c >= 128 && c < 160)
     printf("M-^%c", c - 128 + 64);
-  else if (flags->show_ends && c == 0)
-    printf("^@");
+  // else if (flags->show_ends && c == 0)
+  //   printf("^@");
   else if (flags->show_ends && c == '\n')
     printf("$\n");
   else
     putchar(c);
 }
-
 void processFile(FILE *fp, CatFlags *flags) {
-    int c;
-    int previous = '\n';  // Начинаем с символа новой строки
-    int index_nonblank = 1;  // Начинаем нумерацию ненулевых строк
-    int line_not_empty = 0;  // Флаг, указывающий, есть ли содержимое в строке
+  int c;
+  int previous = '\n';  // Предыдущий символ
+  int index = 1;        // Счетчик строк
+  int blank_count = 0;  // Счетчик пустых строк
 
-    while ((c = fgetc(fp)) != EOF) {
-        // Логика для squeeze_blank
-        // if (flags->squeeze_blank && c == '\n' && previous == '\n') {
-        //     continue;  // Пропускаем, если предыдущий символ также новая строка
-        // }
+  while ((c = fgetc(fp)) != EOF) {
+    c = (unsigned char)c;  // Защита от некорректной интерпретации символов
 
-        // Проверяем наличие содержимого в строке
-        if (c != '\n') {
-            line_not_empty = 1;  // У нас есть видимый символ
-        }
-
-        // Нумерация только ненулевых строк
-        if ((line_not_empty && flags->number_nonblanck && previous == '\n') || (flags->number_all && previous == '\n')) {
-
-                printf("%d\t", index_nonblank++);
-
-        }
-
-        // Печать специального символа
-        PrintSpecialChar(c, flags);
-        
-        // Обновляем предыдущий символ
-        previous = c;
-        
-        // Если текущий символ - новая строка, сбрасываем флаг
-        if (c == '\n') {
-            line_not_empty = 0;  // Сбрасываем флаг для следующей строки
-        }
+    // Обработка флага -s (squeeze blank)
+    if (flags->squeeze_blank && c == '\n' && previous == '\n') {
+      blank_count++;
+      if (blank_count > 1) {
+        continue;  // Пропускаем лишние пустые строки
+      }
+    } else {
+      blank_count = 0;  // Сбрасываем счетчик пустых строк
     }
+
+    // Печать номера строки
+    if (flags->number_all || (flags->number_nonblanck && c != '\n')) {
+      if (previous == '\n') {
+        printf("%6d\t", index++);
+      }
+    }
+
+    // Печать символа
+    PrintSpecialChar(c, flags);
+
+    // Обновление предыдущего символа
+    previous = c;
+  }
 }

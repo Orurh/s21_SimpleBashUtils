@@ -1,5 +1,3 @@
-#define _POSIX_C_SOURCE 200809L
-
 #include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,6 +38,8 @@ int main(int argc, char *argv[]) {
     else if (opt == '?')
       exit_status = 1;
   }
+  if (flags.number_nonblanck)
+    flags.number_all = 0;
 
   if (!exit_status) {
     FILE *fp = NULL;
