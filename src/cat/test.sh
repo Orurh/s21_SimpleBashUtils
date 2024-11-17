@@ -1,6 +1,7 @@
 #!/bin/bash
 
 filename="bytes.txt"
+filename2="test3.txt"
 
 check_files() {
     flags="$1"
@@ -9,12 +10,12 @@ check_files() {
     
     if [ -z "$flags" ]; then
         # Без флагов 
-        ./s21_cat "$filename" >> s21_cat.txt
-        cat "$filename" >> cat.txt
+        ./s21_cat "$filename" "$filename2" >> s21_cat.txt
+        cat "$filename" "$filename2" >> cat.txt
     else
         # С флагами
-        ./s21_cat $flags "$filename" >> s21_cat.txt
-        cat $flags "$filename" >> cat.txt
+        ./s21_cat $flags "$filename" "$filename2" >> s21_cat.txt
+        cat $flags "$filename" "$filename2" >> cat.txt
     fi
     
     if diff -s s21_cat.txt cat.txt; then

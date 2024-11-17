@@ -5,64 +5,74 @@
 
 #include "catFlags.h"
 
+void parseFlags(int argc, char *argv[], CatFlags *flags, int *exit_status);
+void processFiles(int argc, const char *argv[], int optind, CatFlags *flags);
 
 int main(int argc, char *argv[]) {
-  int opt;
   int exit_status = 0;
   CatFlags flags = {0};
 
+  parseFlags(argc, argv, &flags, &exit_status);
+
+  if (!exit_status) {
+    processFiles(argc, argv, optind, &flags);
+  }
+
+  return exit_status;
+}
+
+void processFiles(int argc, const char *argv[], int optind, CatFlags *flags) {
+  FILE *fp = NULL;
+  int count_lines = 1;
+  if (optind >= argc) {
+    fp = stdin;
+  }
+  for (int i = optind; i < argc || (optind >= argc && fp); i++) {
+    if (i < argc) {
+      if (!(fp = fopen(argv[i], "r"))) {
+        perror(argv[i]);
+        continue;
+      }
+    }
+    if (fp)
+      processFile(fp, flags, &count_lines);
+
+    if (fp && fp != stdin)
+      fclose(fp);
+    fp = NULL;
+  }
+}
+
+void parseFlags(int argc, char *argv[], CatFlags *flags, int *exit_status) {
+  int opt;
   struct option long_options[] = {
-      {"number-nonblank", no_argument, &flags.number_nonblanck, 1},
-      {"number", no_argument, &flags.number_all, 1},
-      {"squeeze-blank", no_argument, &flags.squeeze_blank, 1},
+      {"number-nonblank", no_argument, &flags->number_nonblanck, 1},
+      {"number", no_argument, &flags->number_all, 1},
+      {"squeeze-blank", no_argument, &flags->squeeze_blank, 1},
       {0, 0, 0, 0}};
 
   while ((opt = getopt_long(argc, argv, "bnsevtET", long_options, NULL)) !=
          -1) {
     if (opt == 'b')
-      flags.number_nonblanck = 1;
+      flags->number_nonblanck = 1;
     else if (opt == 'n')
-      flags.number_all = 1;
+      flags->number_all = 1;
     else if (opt == 's')
-      flags.squeeze_blank = 1;
+      flags->squeeze_blank = 1;
     else if (opt == 'e')
-      flags.show_ends = flags.show_hiddensimv = 1;
+      flags->show_ends = flags->show_hiddensimv = 1;
     else if (opt == 't')
-      flags.show_tabs = flags.show_hiddensimv = 1;
+      flags->show_tabs = flags->show_hiddensimv = 1;
     else if (opt == 'v')
-      flags.show_hiddensimv = 1;
+      flags->show_hiddensimv = 1;
     else if (opt == 'E')
-      flags.show_ends = 1;
+      flags->show_ends = 1;
     else if (opt == 'T')
-      flags.show_tabs = 1;
+      flags->show_tabs = 1;
     else if (opt == '?')
-      exit_status = 1;
+      *exit_status = 1;
   }
-  if (flags.number_nonblanck)
-    flags.number_all = 0;
 
-  if (!exit_status) {
-    FILE *fp = NULL;
-    // char *line = NULL;
-    // size_t lineSize = 0;
-
-    if (optind >= argc)
-      fp = stdin;
-
-    for (int i = optind; i < argc || (optind >= argc && fp); i++) {
-      if (i < argc) {
-        if (!(fp = fopen(argv[i], "r"))) {
-          perror(argv[i]);
-          continue;
-        }
-      }
-      
-      processFile(fp, &flags); 
-
-      if (fp && fp!= stdin)
-        fclose(fp);
-      fp = NULL;
-    }
-  }
-  return exit_status;
+  if (flags->number_nonblanck)
+    flags->number_all = 0;
 }

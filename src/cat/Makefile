@@ -1,4 +1,4 @@
-FLAGS=-Wall -Wextra -Werror -std=c11 
+FLAGS=-Wall -Wextra -Werror -std=c11 -pedantic 
 
 CC=gcc
 
