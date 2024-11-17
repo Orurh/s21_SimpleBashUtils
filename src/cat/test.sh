@@ -1,6 +1,6 @@
 #!/bin/bash
 
-filename="test1.txt"
+filename="bytes.txt"
 
 check_files() {
     flags="$1"
