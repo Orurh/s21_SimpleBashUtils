@@ -1,6 +1,7 @@
 #ifndef CAT_FLAGS_H
 #define CAT_FLAGS_H
 
+#include <stdio.h>
 
 
 typedef struct {
@@ -13,6 +14,6 @@ typedef struct {
 } CatFlags;
 
 
-void PrintLineWithOptions(const char *line, int *lineNumber, CatFlags *flags, int *prevEmpty);
+void processFile(FILE *fp, CatFlags *flags);
 
 #endif

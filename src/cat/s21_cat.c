@@ -43,9 +43,8 @@ int main(int argc, char *argv[]) {
 
   if (!exit_status) {
     FILE *fp = NULL;
-    int lineNumber = 1, prevEmpty = 0;
-    char *line = NULL;
-    size_t lineSize = 0;
+    // char *line = NULL;
+    // size_t lineSize = 0;
 
     if (optind >= argc)
       fp = stdin;
@@ -57,17 +56,13 @@ int main(int argc, char *argv[]) {
           continue;
         }
       }
+      
+      processFile(fp, &flags); 
 
-      while (getline(&line, &lineSize, fp) != -1) {
-        PrintLineWithOptions(line, &lineNumber, &flags, &prevEmpty);
-      }
-
-      if (fp && fp != stdin)
+      if (fp && fp!= stdin)
         fclose(fp);
       fp = NULL;
     }
-
-    free(line);
   }
   return exit_status;
 }
