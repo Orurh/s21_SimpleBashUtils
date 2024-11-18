@@ -13,6 +13,8 @@ s21_cat.o: s21_cat.c
 catFlags.o: catFlags.c
 	$(CC) $(FLAGS) -c catFlags.c
 
+run:
+	./test.sh
 
 clean:
 	rm -rf *.o s21_cat 

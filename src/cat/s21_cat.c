@@ -5,25 +5,27 @@
 
 #include "catFlags.h"
 
-void parseFlags(int argc, char *argv[], CatFlags *flags, int *exit_status);
-void processFiles(int argc, const char *argv[], int optind, CatFlags *flags);
+void ParseFlags(int argc, char *argv[], CatFlags *flags, int *exit_status);
+void OpenFiles(int argc, const char *argv[], int optind,
+                  const CatFlags *flags);
 
 int main(int argc, char *argv[]) {
   int exit_status = 0;
   CatFlags flags = {0};
 
-  parseFlags(argc, argv, &flags, &exit_status);
+  ParseFlags(argc, argv, &flags, &exit_status);
 
   if (!exit_status) {
-    processFiles(argc, argv, optind, &flags);
+    OpenFiles(argc, (const char **)argv, optind, &flags);
   }
 
   return exit_status;
 }
 
-void processFiles(int argc, const char *argv[], int optind, CatFlags *flags) {
+void OpenFiles(int argc, const char *argv[], int optind,
+                  const CatFlags *flags) {
   FILE *fp = NULL;
-  int count_lines = 1;
+  int index = 1;
   if (optind >= argc) {
     fp = stdin;
   }
@@ -35,15 +37,14 @@ void processFiles(int argc, const char *argv[], int optind, CatFlags *flags) {
       }
     }
     if (fp)
-      processFile(fp, flags, &count_lines);
-
+      ProcessFile(fp, flags, &index);
     if (fp && fp != stdin)
       fclose(fp);
     fp = NULL;
   }
 }
 
-void parseFlags(int argc, char *argv[], CatFlags *flags, int *exit_status) {
+void ParseFlags(int argc, char *argv[], CatFlags *flags, int *exit_status) {
   int opt;
   struct option long_options[] = {
       {"number-nonblank", no_argument, &flags->number_nonblanck, 1},
@@ -69,8 +70,9 @@ void parseFlags(int argc, char *argv[], CatFlags *flags, int *exit_status) {
       flags->show_ends = 1;
     else if (opt == 'T')
       flags->show_tabs = 1;
-    else if (opt == '?')
+    else if (opt == '?') {
       *exit_status = 1;
+      printf("Unknown option: %c\n", optopt); }
   }
 
   if (flags->number_nonblanck)

@@ -14,6 +14,6 @@ typedef struct {
 } CatFlags;
 
 
-void processFile(FILE *fp, const CatFlags *flags, int *index);
+void ProcessFile(FILE *fp, const CatFlags *flags, int *index);
 
 #endif

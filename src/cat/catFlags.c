@@ -1,8 +1,8 @@
 #include "catFlags.h"
 
-#include <ctype.h>
 #include <stdio.h>
 #include <string.h>
+
 void PrintSpecialChar(int c, const CatFlags *flags) {
   if (flags->show_tabs && c == '\t')
     printf("^I");
@@ -17,22 +17,20 @@ void PrintSpecialChar(int c, const CatFlags *flags) {
   else
     putchar(c);
 }
-void processFile(FILE *fp, const CatFlags *flags, int *index) {
+
+void ProcessFile(FILE *fp, const CatFlags *flags, int *index) {
   int c;
   int previous = '\n'; // Предыдущий символ
-  int blank_count = 0; // Счетчик пустых строк
+  int line_count = 0;  // Счетчик пустых строк
 
   while ((c = fgetc(fp)) != EOF) {
-    c = (unsigned char)c; // Защита от некорректной интерпретации символов
-
-    // Обработка флага -s (squeeze blank)
     if (flags->squeeze_blank && c == '\n' && previous == '\n') {
-      blank_count++;
-      if (blank_count > 1) {
-        continue; // Пропускаем лишние пустые строки
+      line_count++;
+      if (line_count > 1) {
+        continue;
       }
     } else {
-      blank_count = 0; // Сбрасываем счетчик пустых строк
+      line_count = 0;
     }
     if (flags->number_all || (flags->number_nonblanck && c != '\n')) {
       if (previous == '\n') {

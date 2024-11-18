@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_PATTERNS 3
 typedef struct {
   int e_flag; // Использование регулярного выражения
   int i_flag; // Игнорировать регистр
@@ -12,24 +11,51 @@ typedef struct {
   int c_flag; // Подсчитать количество совпадений
   int l_flag; // Показать имя файлов с совпадениями
   int n_flag; // Показать номер строки
-  regex_t regex[MAX_PATTERNS];
-  char *pattern[MAX_PATTERNS];
+  int h_flag; // Не показывать имена файлов
+  int s_flag; // Молчание, игнорировать ошибки при открытии файлов
+  regex_t regex;
+  char *pattern;
   int pattern_count;
+  int filename_flag;
 } GrepFlags;
 
-void InitializeFlags(GrepFlags *flags, int argc, char *argv[]) {
+void InitializeFlags(GrepFlags *flags) {
+  *flags = (GrepFlags){0}; // Инициализация всех полей в ноль
+}
+
+void HandleFlagE(GrepFlags *flags, char *optarg, int *return_value) {
+  flags->e_flag = 1;
+  if (optarg) {
+    flags->pattern = optarg;
+    flags->pattern_count++;
+  } else {
+    *return_value = 1;
+    fprintf(stderr, "Error: Option -e requires an argument.\n");
+  }
+}
+
+void CompilePattern(GrepFlags *flags, int *return_value) {
+  if (!flags->pattern) {
+    fprintf(stderr, "Error: No search pattern provided.\n");
+    *return_value = 1;
+    return;
+  }
+
+  int regex_flags = REG_EXTENDED | (flags->i_flag ? REG_ICASE : 0);
+  if (regcomp(&flags->regex, flags->pattern, regex_flags) != 0) {
+    fprintf(stderr, "Error: Invalid regular expression.\n");
+    exit(EXIT_FAILURE);
+  }
+}
+
+void ParseArguments(GrepFlags *flags, int argc, char *argv[],
+                    int *return_value) {
   int opt;
 
-  while ((opt = getopt(argc, argv, "e:ivcln")) != -1) {
+  while ((opt = getopt(argc, argv, "e:ivclnhs")) != -1) {
     switch (opt) {
     case 'e':
-      if (flags->pattern_count < MAX_PATTERNS) {
-        flags->e_flag = 1;
-        flags->pattern[flags->pattern_count++] = optarg;
-      } else {
-        fprintf(stderr, "Слишком много регулярных выражений.\n");
-        exit(EXIT_FAILURE);
-      }
+      HandleFlagE(flags, optarg, return_value);
       break;
     case 'i':
       flags->i_flag = 1;
@@ -46,84 +72,102 @@ void InitializeFlags(GrepFlags *flags, int argc, char *argv[]) {
     case 'n':
       flags->n_flag = 1;
       break;
+    case 'h':
+      flags->h_flag = 1;
+      break;
+    case 's':
+      flags->s_flag = 1;
+      break;
     default:
-      exit(EXIT_FAILURE);
+      *return_value = 1;
+      fprintf(stderr, "Error: Unknown option -%c\n", opt);
+      return;
     }
   }
-  if (!flags->e_flag) {
-    flags->pattern[flags->pattern_count++] = argv[optind++];
+
+  if (!flags->e_flag && optind < argc) {
+    flags->pattern = argv[optind++];
+    flags->pattern_count++;
   }
-  int regex_flags = REG_EXTENDED | (flags->i_flag ? REG_ICASE : 0);
-  for (int i = 0; i < flags->pattern_count; i++) {
-    if (regcomp(&flags->regex[i], flags->pattern[i], regex_flags) != 0) {
-      fprintf(stderr, "Ошибка компиляции регулярного выражения.\n");
-      exit(EXIT_FAILURE);
-    }
-  }
+
+  CompilePattern(flags, return_value);
+  flags->filename_flag = (argc - optind > 1);
 }
 
-int MatchLine(const char *line, GrepFlags *flags) {
-  for (int i = 0; i < flags->pattern_count; i++) {
-    int match = (regexec(&flags->regex[i], line, 0, NULL, 0) == 0);
-    if (match) {
-      return flags->v_flag ? !match : match;
-    }
+FILE *OpenFile(const char *filename, GrepFlags *flags) {
+  FILE *file = fopen(filename, "r");
+  if (!file && !flags->s_flag) {
+    perror(filename);
   }
+  return file;
 }
-  void PrintLine(const char *line, int line_number, GrepFlags *flags,
+
+void ProcessLine(const char *line, int line_number, GrepFlags *flags,
                  int *match_count, const char *filename) {
+  int match = regexec(&flags->regex, line, 0, NULL, 0) == 0;
+  if (flags->v_flag) {
+    match = !match;
+  }
+
+  if (match) {
     if (flags->c_flag) {
       (*match_count)++;
     } else if (flags->l_flag) {
       printf("%s\n", filename);
     } else {
+      if (flags->filename_flag && !flags->h_flag) {
+        printf("%s:", filename);
+      }
       if (flags->n_flag) {
         printf("%d:", line_number);
       }
       printf("%s", line);
     }
   }
+}
 
-  void ProcessFile(FILE * file, GrepFlags * flags, const char *filename) {
-    char line[1024];
-    int line_number = 1;
-    int match_count = 0;
+void ProcessFile(FILE *file, GrepFlags *flags, const char *filename) {
+  char line[1024];
+  int line_number = 1;
+  int match_count = 0;
 
-    while (fgets(line, sizeof(line), file)) {
-      if (MatchLine(line, flags)) {
-        PrintLine(line, line_number, flags, &match_count, filename);
-      }
-      line_number++;
-    }
+  while (fgets(line, sizeof(line), file)) {
+    ProcessLine(line, line_number, flags, &match_count, filename);
+    line_number++;
+  }
 
-    if (flags->c_flag) {
-      printf("%d\n", match_count);
+  if (flags->c_flag) {
+    printf("%d\n", match_count);
+  }
+}
+
+void FreeResources(GrepFlags *flags) { regfree(&flags->regex); }
+
+int main(int argc, char *argv[]) {
+  int return_value = 0;
+  GrepFlags flags;
+  InitializeFlags(&flags);
+
+  ParseArguments(&flags, argc, argv, &return_value);
+  if (return_value != 0) {
+    return EXIT_FAILURE;
+  }
+
+  if (optind >= argc) {
+    fprintf(stderr, "Error: No files provided.\n");
+    FreeResources(&flags);
+    return EXIT_FAILURE;
+  }
+
+  for (int i = optind; i < argc; ++i) {
+    const char *filename = argv[i];
+    FILE *file = OpenFile(filename, &flags);
+    if (file) {
+      ProcessFile(file, &flags, filename);
+      fclose(file);
     }
   }
 
-  int main(int argc, char *argv[]) {
-    GrepFlags flags = {0};
-    InitializeFlags(&flags, argc, argv);
-
-      if (optind >= argc) {
-        fprintf(stderr, "Error: No file provided.\n");
-        return EXIT_FAILURE;
-    }
-
-    const char *filename = argv[optind];
-    printf("Opening file: %s\n", filename);
-
-    FILE *file = fopen(argv[optind], "r");
-    if (!file) {
-      perror("fopen");
-      return EXIT_FAILURE;
-    }
-
-    ProcessFile(file, &flags, argv[optind]);
-
-    fclose(file);
-    for (int i = 0; i < flags.pattern_count; ++i) {
-      regfree(&flags.regex[i]);
-    }
-    return EXIT_SUCCESS;
-  }
+  FreeResources(&flags);
+  return return_value;
+}
