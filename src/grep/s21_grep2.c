@@ -22,23 +22,22 @@ typedef struct {
   int filename_flag;
 } GrepFlags;
 
-void ReadPatternsFromFile(GrepFlags *flags, const char *filename, int *return_value);
-void InitializeFlags(GrepFlags *flags) {
-  *flags = (GrepFlags){0}; 
-}
+void ReadPatternsFromFile(GrepFlags *flags, const char *filename,
+                          int *return_value);
+void InitializeFlags(GrepFlags *flags) { *flags = (GrepFlags){0}; }
 
 void HandleFlagE(GrepFlags *flags, char *optarg, int *return_value) {
   flags->e_flag = 1;
-  if (optarg) {
+  if (optarg && *optarg) {
     flags->pattern[flags->pattern_count++] = strdup(optarg);
   } else {
     *return_value = 1;
-    fprintf(stderr, "Error: Option -e requires an argument.\n");
+    fprintf(stderr, "Error: Option -e requires a non-empty argument.\n");
   }
 }
 
 void CompilePattern(GrepFlags *flags, int *return_value) {
-  if (!flags->pattern) {
+  if (flags->pattern_count == 0) {
     fprintf(stderr, "Error: No search pattern provided.\n");
     *return_value = 1;
     return;
@@ -46,13 +45,13 @@ void CompilePattern(GrepFlags *flags, int *return_value) {
 
   int regex_flags = REG_EXTENDED | (flags->i_flag ? REG_ICASE : 0);
   for (int i = 0; i < flags->pattern_count; ++i) {
-     if (regcomp(&flags->regex[i], flags->pattern[i], regex_flags) != 0)
-        fprintf(stderr, "Error: Invalid regular expression.\n");
-    exit(EXIT_FAILURE);
-    *return_value = 1;
+    if (regcomp(&flags->regex[i], flags->pattern[i], regex_flags) != 0) {
+      fprintf(stderr, "Error: Invalid regular expression.\n");
+      *return_value = 1;
+      return;
+    }
   }
 }
-
 
 void ParseArguments(GrepFlags *flags, int argc, char *argv[],
                     int *return_value) {
@@ -95,7 +94,7 @@ void ParseArguments(GrepFlags *flags, int argc, char *argv[],
     }
   }
 
-  if (!flags->e_flag && optind < argc && !flags->f_flag) {
+  if (flags->pattern_count == 0 && optind < argc && !flags->f_flag) {
     flags->pattern[flags->pattern_count++] = argv[optind++];
   }
 
@@ -103,24 +102,26 @@ void ParseArguments(GrepFlags *flags, int argc, char *argv[],
   flags->filename_flag = (argc - optind > 1);
 }
 
-void ReadPatternsFromFile(GrepFlags *flags, const char *filename, int *return_value) {
-    FILE *file = fopen(filename, "r");
-    if (!file) {
-        if (!flags->s_flag) {
-            perror(filename);
-        }
-        *return_value = 1;
-        return;
+void ReadPatternsFromFile(GrepFlags *flags, const char *filename,
+                          int *return_value) {
+  FILE *file = fopen(filename, "r");
+  if (!file) {
+    if (!flags->s_flag) {
+      perror(filename);
     }
+    *return_value = 1;
+    return;
+  }
 
-    char line[1024];
-    while (fgets(line, sizeof(line), file) != NULL && flags->pattern_count < MAX_PATTERNS) {
-        line[strcspn(line, "\n")] = 0; 
-        flags->pattern[flags->pattern_count] = strdup(line);
-        flags->pattern_count++;
-    }
+  char line[1024];
+  while (fgets(line, sizeof(line), file) != NULL &&
+         flags->pattern_count < MAX_PATTERNS) {
+    line[strcspn(line, "\n")] = 0; // Удаляем символ новой строки
+    flags->pattern[flags->pattern_count] = strdup(line);
+    flags->pattern_count++;
+  }
 
-    fclose(file);
+  fclose(file);
 }
 
 FILE *OpenFile(const char *filename, GrepFlags *flags) {
@@ -134,28 +135,29 @@ FILE *OpenFile(const char *filename, GrepFlags *flags) {
 void ProcessLine(const char *line, int line_number, GrepFlags *flags,
                  int *match_count, const char *filename) {
   for (int i = 0; i < flags->pattern_count; ++i) {
-    
-  
-  int match = regexec(&flags->regex[i], line, 0, NULL, 0) == 0;
-  if (flags->v_flag) {
-    match = !match;
-  }
-
-  if (match) {
-    if (flags->c_flag) {
-      (*match_count)++;
-    } else if (flags->l_flag) {
-      printf("%s\n", filename);
-    } else {
-      if (flags->filename_flag && !flags->h_flag) {
-        printf("%s:", filename);
-      }
-      if (flags->n_flag) {
-        printf("%d:", line_number);
-      }
-      printf("%s", line);
+    int match = regexec(&flags->regex[i], line, 0, NULL, 0) == 0;
+    if (flags->v_flag) {
+      match = !match;
     }
-  }}
+
+    if (match) {
+      if (flags->c_flag) {
+        (*match_count)++;
+      } else if (flags->l_flag) {
+
+        printf("%s\n", filename);
+        return; // Переходим к следующему файлу, если флаг -l
+      } else {
+        if (flags->filename_flag && !flags->h_flag) {
+          printf("%s:", filename);
+        }
+        if (flags->n_flag) {
+          printf("%d:", line_number);
+        }
+        printf("%s", line);
+      }
+    }
+  }
 }
 
 void ProcessFile(FILE *file, GrepFlags *flags, const char *filename) {
@@ -167,14 +169,17 @@ void ProcessFile(FILE *file, GrepFlags *flags, const char *filename) {
     ProcessLine(line, line_number, flags, &match_count, filename);
     line_number++;
   }
+
   if (flags->c_flag) {
     printf("%d\n", match_count);
   }
 }
 
-void FreeResources(GrepFlags *flags) { 
+void FreeResources(GrepFlags *flags) {
   for (int i = 0; i < flags->pattern_count; ++i) {
-    regfree(&flags->regex[i]); }
+    regfree(&flags->regex[i]);
+    free(flags->pattern[i]);
+  }
 }
 
 int main(int argc, char *argv[]) {
@@ -184,6 +189,7 @@ int main(int argc, char *argv[]) {
 
   ParseArguments(&flags, argc, argv, &return_value);
   if (return_value != 0) {
+    FreeResources(&flags);
     return EXIT_FAILURE;
   }
 
