@@ -1,1 +1,132 @@
 
+-b bytes.txt
+-e bytes.txt
+-n bytes.txt
+-s bytes.txt
+-t bytes.txt
+-v bytes.txt
+-b -e bytes.txt
+-b -n bytes.txt
+-b -s bytes.txt
+-b -t bytes.txt
+-e -b bytes.txt
+-e -n bytes.txt
+-e -s bytes.txt
+-e -t bytes.txt
+-n -b bytes.txt
+-n -e bytes.txt
+-n -s bytes.txt
+-n -t bytes.txt
+-s -b bytes.txt
+-s -e bytes.txt
+-s -n bytes.txt
+-s -t bytes.txt
+-t -b bytes.txt
+-t -e bytes.txt
+-t -n bytes.txt
+-t -s bytes.txt
+-v -b bytes.txt
+-v -e bytes.txt
+-v -n bytes.txt
+-v -s bytes.txt
+-v -t bytes.txt
+-b -e -n bytes.txt
+-b -e -s bytes.txt
+-b -e -t bytes.txt
+-b -n -e bytes.txt
+-b -n -s bytes.txt
+-b -n -t bytes.txt
+-b -s -e bytes.txt
+-b -s -n bytes.txt
+-b -s -t bytes.txt
+-b -t -e bytes.txt
+-b -t -n bytes.txt
+-b -t -s bytes.txt
+-b -v -e bytes.txt
+-b -v -n bytes.txt
+-b -v -s bytes.txt
+-b -v -t bytes.txt
+-e -b -n bytes.txt
+-e -b -s bytes.txt
+-e -b -t bytes.txt
+-e -n -b bytes.txt
+-e -n -s bytes.txt
+-e -n -t bytes.txt
+-e -s -b bytes.txt
+-e -s -n bytes.txt
+-e -s -t bytes.txt
+-e -t -b bytes.txt
+-e -t -n bytes.txt
+-e -t -s bytes.txt
+-e -v -b bytes.txt
+-e -v -n bytes.txt
+-e -v -s bytes.txt
+-e -v -t bytes.txt
+-n -b -e bytes.txt
+-n -b -s bytes.txt
+-n -b -t bytes.txt
+-n -e -b bytes.txt
+-n -e -s bytes.txt
+-n -e -t bytes.txt
+-n -s -b bytes.txt
+-n -s -e bytes.txt
+-n -s -t bytes.txt
+-n -t -b bytes.txt
+-n -t -e bytes.txt
+-n -t -s bytes.txt
+-n -v -b bytes.txt
+-n -v -e bytes.txt
+-n -v -s bytes.txt
+-n -v -t bytes.txt
+-s -b -e bytes.txt
+-s -b -n bytes.txt
+-s -b -t bytes.txt
+-s -e -b bytes.txt
+-s -e -n bytes.txt
+-s -e -t bytes.txt
+-s -n -b bytes.txt
+-s -n -e bytes.txt
+-s -n -t bytes.txt
+-s -t -b bytes.txt
+-s -t -e bytes.txt
+-s -t -n bytes.txt
+-s -v -b bytes.txt
+-s -v -e bytes.txt
+-s -v -n bytes.txt
+-s -v -t bytes.txt
+-t -b -e bytes.txt
+-t -b -n bytes.txt
+-t -b -s bytes.txt
+-t -e -b bytes.txt
+-t -e -n bytes.txt
+-t -e -s bytes.txt
+-t -n -b bytes.txt
+-t -n -e bytes.txt
+-t -n -s bytes.txt
+-t -s -b bytes.txt
+-t -s -e bytes.txt
+-t -s -n bytes.txt
+-t -v -b bytes.txt
+-t -v -e bytes.txt
+-t -v -n bytes.txt
+-t -v -s bytes.txt
+-v -b -e bytes.txt
+-v -b -n bytes.txt
+-v -b -s bytes.txt
+-v -b -t bytes.txt
+-v -e -b bytes.txt
+-v -e -n bytes.txt
+-v -e -s bytes.txt
+-v -e -t bytes.txt
+-v -n -b bytes.txt
+-v -n -e bytes.txt
+-v -n -s bytes.txt
+-v -n -t bytes.txt
+-v -s -b bytes.txt
+-v -s -e bytes.txt
+-v -s -n bytes.txt
+-v -s -t bytes.txt
+-v -t -b bytes.txt
+-v -t -e bytes.txt
+-v -t -n bytes.txt
+-v -t -s bytes.txt

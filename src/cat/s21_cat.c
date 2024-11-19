@@ -72,7 +72,7 @@ void ParseFlags(int argc, char *argv[], CatFlags *flags, int *exit_status) {
       flags->show_tabs = 1;
     else if (opt == '?') {
       *exit_status = 1;
-      printf("Unknown option: %c\n", optopt); }
+      printf("usage: cat [-belnstuv] [file ...]"); }
   }
 
   if (flags->number_nonblanck)

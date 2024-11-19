@@ -1,6 +1,6 @@
 #!/bin/bash
 
-filename="bytes.txt"
+filename="test2.txt"
 filename2="test3.txt"
 
 check_files() {
@@ -10,12 +10,12 @@ check_files() {
     
     if [ -z "$flags" ]; then
         # Без флагов 
-        ./s21_cat "$filename" "$filename2" >> s21_cat.txt
-        cat "$filename" "$filename2" >> cat.txt
+        ./s21_cat "$filename"  >> s21_cat.txt
+        cat "$filename" >> cat.txt
     else
         # С флагами
-        ./s21_cat $flags "$filename" "$filename2" >> s21_cat.txt
-        cat $flags "$filename" "$filename2" >> cat.txt
+        ./s21_cat $flags "$filename" >> s21_cat.txt
+        cat $flags "$filename" >> cat.txt
     fi
     
     if diff -s s21_cat.txt cat.txt; then
@@ -30,9 +30,9 @@ check_files() {
 
 check_files ""
 #for linux
-flags=("-b" "-n" "-e" "-s" "-t" "-E" "-T" "--number-nonblank" "--number" "--squeeze-blank") 
+# flags=("-b" "-n" "-e" "-s" "-t" "-E" "-T" "--number-nonblank" "--number" "--squeeze-blank") 
 # #for mac
-# flags=("-v" "-b" "-n" "-e" "-s" "-t" )
+flags=("-v" "-b" "-n" "-e" "-s" "-t" )
 
 echo -e "\033[1;33mПроверка с одиночными флагами:\033[0m"
 for flag in "${flags[@]}"; do
