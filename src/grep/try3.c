@@ -7,16 +7,16 @@
 #define MAX_LINE_LENGTH 1024
 
 typedef struct {
-  unsigned e_flag : 1;  // Использование регулярного выражения
-  unsigned i_flag : 1;  // Игнорировать регистр
-  unsigned v_flag : 1;  // Инвертировать результат поиска
-  unsigned c_flag : 1;  // Подсчитать количество совпадений
-  unsigned l_flag : 1;  // Показать имя файлов с совпадениями
-  unsigned n_flag : 1;  // Показать номер строки
-  unsigned h_flag : 1;  // Не показывать имена файлов
-  unsigned s_flag : 1;  // Молчание, игнорировать ошибки при открытии файлов
-  unsigned f_flag : 1;  // Чтение паттернов из файла
-  unsigned o_flag : 1;  // Выводить только совпавшие части строки
+  unsigned e_flag : 1; // Использование регулярного выражения
+  unsigned i_flag : 1; // Игнорировать регистр
+  unsigned v_flag : 1; // Инвертировать результат поиска
+  unsigned c_flag : 1; // Подсчитать количество совпадений
+  unsigned l_flag : 1; // Показать имя файлов с совпадениями
+  unsigned n_flag : 1; // Показать номер строки
+  unsigned h_flag : 1; // Не показывать имена файлов
+  unsigned s_flag : 1; // Молчание, игнорировать ошибки при открытии файлов
+  unsigned f_flag : 1; // Чтение паттернов из файла
+  unsigned o_flag : 1; // Выводить только совпавшие части строки
 } GrepFlags;
 
 typedef struct {
@@ -57,7 +57,7 @@ int ParsePatternsFromFile(GrepContext *ctx, const char *filename,
 
   char line[MAX_LINE_LENGTH];
   while (fgets(line, sizeof(line), file)) {
-    line[strcspn(line, "\n")] = 0;  // Удаление символа новой строки
+    line[strcspn(line, "\n")] = 0; // Удаление символа новой строки
     if (CompilePattern(ctx, line, regex_flags)) {
       fclose(file);
       return 1;
@@ -74,41 +74,43 @@ int ParseArguments(GrepContext *ctx, int argc, char *argv[], char **files,
 
   while ((opt = getopt(argc, argv, "e:ivclnhsf:o")) != -1) {
     switch (opt) {
-      case 'e':
-        ctx->flags.e_flag = 1;
-        if (CompilePattern(ctx, optarg, regex_flags)) return 1;
-        break;
-      case 'i':
-        ctx->flags.i_flag = 1;
-        break;
-      case 'v':
-        ctx->flags.v_flag = 1;
-        break;
-      case 'c':
-        ctx->flags.c_flag = 1;
-        break;
-      case 'l':
-        ctx->flags.l_flag = 1;
-        break;
-      case 'n':
-        ctx->flags.n_flag = 1;
-        break;
-      case 'h':
-        ctx->flags.h_flag = 1;
-        break;
-      case 's':
-        ctx->flags.s_flag = 1;
-        break;
-      case 'f':
-        ctx->flags.f_flag = 1;
-        if (ParsePatternsFromFile(ctx, optarg, regex_flags)) return 1;
-        break;
-      case 'o':
-        ctx->flags.o_flag = 1;
-        break;
-      default:
-        fprintf(stderr, "Error: Unknown option -%c\n", opt);
+    case 'e':
+      ctx->flags.e_flag = 1;
+      if (CompilePattern(ctx, optarg, regex_flags))
         return 1;
+      break;
+    case 'i':
+      ctx->flags.i_flag = 1;
+      break;
+    case 'v':
+      ctx->flags.v_flag = 1;
+      break;
+    case 'c':
+      ctx->flags.c_flag = 1;
+      break;
+    case 'l':
+      ctx->flags.l_flag = 1;
+      break;
+    case 'n':
+      ctx->flags.n_flag = 1;
+      break;
+    case 'h':
+      ctx->flags.h_flag = 1;
+      break;
+    case 's':
+      ctx->flags.s_flag = 1;
+      break;
+    case 'f':
+      ctx->flags.f_flag = 1;
+      if (ParsePatternsFromFile(ctx, optarg, regex_flags))
+        return 1;
+      break;
+    case 'o':
+      ctx->flags.o_flag = 1;
+      break;
+    default:
+      fprintf(stderr, "Error: Unknown option -%c\n", opt);
+      return 1;
     }
   }
 
@@ -143,11 +145,14 @@ void ProcessLine(const char *line, int line_number, const GrepContext *ctx,
 
   for (size_t i = 0; i < ctx->regex_count; i++) {
     matched = regexec(&ctx->regexes[i], line, 0, NULL, 0) == 0;
-    if (ctx->flags.v_flag) matched = !matched;
-    if (matched) break;
+    if (ctx->flags.v_flag)
+      matched = !matched;
+    if (matched)
+      break;
   }
 
-  if (!matched) return;
+  if (!matched)
+    return;
 
   if (ctx->flags.c_flag) {
     (*match_count)++;
@@ -157,13 +162,16 @@ void ProcessLine(const char *line, int line_number, const GrepContext *ctx,
       *file_matched = 1;
     }
   } else {
-    if (total_files > 1 && !ctx->flags.h_flag) printf("%s:", filename);
-    if (ctx->flags.n_flag) printf("%d:", line_number);
+    if (total_files > 1 && !ctx->flags.h_flag)
+      printf("%s:", filename);
+    if (ctx->flags.n_flag)
+      printf("%d:", line_number);
     if (ctx->flags.o_flag) {
       for (size_t i = 0; i < ctx->regex_count; i++) {
         regmatch_t match;
         if (regexec(&ctx->regexes[i], line, 1, &match, 0) == 0) {
-          printf("%.*s\n", (int)(match.rm_eo - match.rm_so), line + match.rm_so);
+          printf("%.*s\n", (int)(match.rm_eo - match.rm_so),
+                 line + match.rm_so);
         }
       }
     } else {
@@ -182,11 +190,13 @@ void ProcessFile(FILE *file, const char *filename, const GrepContext *ctx,
   while (fgets(line, sizeof(line), file)) {
     ProcessLine(line, line_number++, ctx, &match_count, filename, total_files,
                 &file_matched);
-    if (ctx->flags.l_flag && file_matched) break;
+    if (ctx->flags.l_flag && file_matched)
+      break;
   }
 
   if (ctx->flags.c_flag) {
-    if (total_files > 1 && !ctx->flags.h_flag) printf("%s:", filename);
+    if (total_files > 1 && !ctx->flags.h_flag)
+      printf("%s:", filename);
     printf("%d\n", match_count);
   }
 }

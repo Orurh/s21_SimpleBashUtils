@@ -5,23 +5,24 @@
 #include <string.h>
 
 typedef struct {
-  int e_flag;  // Использование регулярного выражения
-  int i_flag;  // Игнорировать регистр
-  int v_flag;  // Инвертировать результат поиска
-  int c_flag;  // Подсчитать количество совпадений
-  int l_flag;  // Показать имя файла с совпадениями
-  int n_flag;  // Показать номер строки
-  int h_flag;  // Не показывать имена файлов
-  int s_flag;  // Молчание, игнорировать ошибки при открытии файлов
-  int f_flag;  // Использовать файл для шаблонов
-  int o_flag;  // Печать только совпадающих частей строки
+  int e_flag; // Использование регулярного выражения
+  int i_flag; // Игнорировать регистр
+  int v_flag; // Инвертировать результат поиска
+  int c_flag; // Подсчитать количество совпадений
+  int l_flag; // Показать имя файла с совпадениями
+  int n_flag; // Показать номер строки
+  int h_flag; // Не показывать имена файлов
+  int s_flag; // Молчание, игнорировать ошибки при открытии файлов
+  int f_flag; // Использовать файл для шаблонов
+  int o_flag; // Печать только совпадающих частей строки
   regex_t regex;
   char *pattern;
 } GrepFlags;
 
 // Функция для безопасного копирования строки
 char *copy_string(const char *str) {
-  if (!str) return NULL;
+  if (!str)
+    return NULL;
   char *copy = malloc(strlen(str) + 1);
   if (!copy) {
     perror("malloc failed");
@@ -43,7 +44,7 @@ int LoadPatternFromFile(const char *filename, char **pattern) {
   ssize_t read;
   char *line = NULL;
   if ((read = getline(&line, &size, file)) != -1) {
-    line[read - 1] = '\0';  // Убираем символ новой строки
+    line[read - 1] = '\0'; // Убираем символ новой строки
     *pattern = copy_string(line);
   }
 
@@ -58,45 +59,45 @@ int InitializeFlags(GrepFlags *flags, int argc, char *argv[]) {
 
   while ((opt = getopt(argc, argv, "e:ivclnhsf:o")) != -1) {
     switch (opt) {
-      case 'e':
-        flags->e_flag = 1;
-        flags->pattern = copy_string(optarg);
-        break;
-      case 'i':
-        flags->i_flag = 1;
-        break;
-      case 'v':
-        flags->v_flag = 1;
-        break;
-      case 'c':
-        flags->c_flag = 1;
-        break;
-      case 'l':
-        flags->l_flag = 1;
-        break;
-      case 'n':
-        flags->n_flag = 1;
-        break;
-      case 'h':
-        flags->h_flag = 1;
-        break;
-      case 's':
-        flags->s_flag = 1;
-        break;
-      case 'f':
-        flags->f_flag = 1;
-        if (LoadPatternFromFile(optarg, &flags->pattern) != EXIT_SUCCESS) {
-          if (!flags->s_flag) {
-            perror(optarg);
-          }
-          return EXIT_FAILURE;
+    case 'e':
+      flags->e_flag = 1;
+      flags->pattern = copy_string(optarg);
+      break;
+    case 'i':
+      flags->i_flag = 1;
+      break;
+    case 'v':
+      flags->v_flag = 1;
+      break;
+    case 'c':
+      flags->c_flag = 1;
+      break;
+    case 'l':
+      flags->l_flag = 1;
+      break;
+    case 'n':
+      flags->n_flag = 1;
+      break;
+    case 'h':
+      flags->h_flag = 1;
+      break;
+    case 's':
+      flags->s_flag = 1;
+      break;
+    case 'f':
+      flags->f_flag = 1;
+      if (LoadPatternFromFile(optarg, &flags->pattern) != EXIT_SUCCESS) {
+        if (!flags->s_flag) {
+          perror(optarg);
         }
-        break;
-      case 'o':
-        flags->o_flag = 1;
-        break;
-      default:
         return EXIT_FAILURE;
+      }
+      break;
+    case 'o':
+      flags->o_flag = 1;
+      break;
+    default:
+      return EXIT_FAILURE;
     }
   }
 
@@ -167,7 +168,7 @@ void ProcessFile(FILE *file, GrepFlags *flags, const char *filename) {
     line_number++;
   }
 
-  free(line);  // Освобождаем память
+  free(line); // Освобождаем память
   if (flags->c_flag) {
     printf("%d\n", match_count);
   }

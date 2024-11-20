@@ -57,8 +57,8 @@ for pair in "${pairs[@]}"; do
 done
 
 # Проверка с флагом -f
-echo "Проверка с флагом -f и паттерном из файла:"
-check_grep_files "-f patterns.txt" ""
+echo -e "\033[1;33mПроверка с флагом -f:\033[0m"
+check_grep_files "-f patterns.txt" "$test_filename"
 
 # Очищение временных файлов
 rm grep_output.txt s21_grep_output.txt
