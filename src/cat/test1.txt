@@ -8,4 +8,6 @@ The *filename is the path to a file that you want to check. The valid value for 
 	X_OK ? test for the execute permission
 	F_OK ? test for the existence of the file.
 
+
+
 The access() function returns 0 if the access is permitted, or -1 otherwise.

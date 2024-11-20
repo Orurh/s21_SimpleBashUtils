@@ -3,39 +3,39 @@
 #include <stdio.h>
 #include <string.h>
 
-void PrintSpecialChar(int c, CatFlags *flags) {
+void PrintSpecialChar(int c, const CatFlags *flags) {
   if (flags->show_tabs && c == '\t')
     printf("^I");
-  else if (flags->show_hiddensimv &&
-    ((c < 32 && c != '\n' && c != '\t')))
+  else if (flags->show_hiddensimv && ((c < 32 && c != '\n' && c != '\t')))
     printf("^%c", c + 64);
-  else if (flags->show_hiddensimv && c == 127) 
+  else if (flags->show_hiddensimv && c == 127)
     printf("^?");
   else if (flags->show_hiddensimv && c >= 128 && c < 160)
-    printf("M-^%c", c - 128 + 64);
+    printf("M-^%c", c + 64);
   else if (flags->show_ends && c == '\n')
     printf("$\n");
   else
     putchar(c);
 }
 
-void PrintLineWithOptions(const char *line, int *lineNumber, CatFlags *flags,
-                          int *prevEmpty) {
-  int is_empty = (line[0] == '\n');
+void ProcessFile(FILE *fp, const CatFlags *flags, int *index, int *previous) {
+  int c;
+  int line_count = 0;
 
-  if (!(flags->squeeze_blank && *prevEmpty && is_empty)) {
-    if (flags->number_all && !(flags->number_nonblanck && is_empty)) {
-      printf("%6d\t", (*lineNumber)++);
-    } else if (flags->number_nonblanck && !is_empty) {
-      printf("%6d\t", (*lineNumber)++);
+  while ((c = fgetc(fp)) != EOF) {
+    if (flags->squeeze_blank && c == '\n' && *previous == '\n') {
+      line_count++;
+    } else {
+      line_count = 0;
     }
 
-    size_t len = strlen(line);
-    for (size_t i = 0; i < len; i++) {
-      // unsigned char c = (unsigned char)line[i]t)(unsigned);
-      int c = (int)(unsigned char)line[i];
+    if (!(flags->squeeze_blank && line_count > 1)) {
+      if ((flags->number_all || (flags->number_nonblanck && c != '\n')) &&
+          *previous == '\n') {
+        printf("%6d\t", (*index)++);
+      }
       PrintSpecialChar(c, flags);
     }
+    *previous = c;
   }
-  *prevEmpty = is_empty;
 }

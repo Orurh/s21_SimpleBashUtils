@@ -1,29 +1,26 @@
 #!/bin/bash
 
-filename="bytes.txt"
+filename="s21_cat.c"
+filename2="catFlags.c"
 
 check_files() {
     flags="$1"
-    
     echo "Проверка с флагами: ${flags:-без флагов}"
-    
     if [ -z "$flags" ]; then
         # Без флагов 
-        ./s21_cat "$filename" >> s21_cat.txt
-        cat "$filename" >> cat.txt
+        ./s21_cat "$filename" "$filename2" >> s21_cat.txt
+        cat "$filename" "$filename2" >> cat.txt
     else
         # С флагами
-        ./s21_cat $flags "$filename" >> s21_cat.txt
-        cat $flags "$filename" >> cat.txt
+        ./s21_cat $flags "$filename" "$filename2" >> s21_cat.txt
+        cat $flags "$filename" "$filename2" >> cat.txt
     fi
     
-    if diff -u s21_cat.txt cat.txt; then
+    if diff -s s21_cat.txt cat.txt; then
         echo -e "\033[1;32mФайлы s21_cat.txt и cat.txt идентичны\033[0m"
     else
         echo -e "\033[1;31mФайлы s21_cat.txt и cat.txt отличаются\033[0m"
     fi
-
-    
     rm s21_cat.txt cat.txt
 }
 
@@ -39,12 +36,11 @@ for flag in "${flags[@]}"; do
 done
 
 
-# if 
-# echo -e "\033[1;33mПроверка всех комбинаций из двух флагов:\033[0m"
-# for flag1 in "${flags[@]}"; do
-#     for flag2 in "${flags[@]}"; do
-#         if [ "$flag1" != "$flag2" ]; then
-#             check_files "$flag1 $flag2"
-#         fi
-#     done
-# done
+echo -e "\033[1;33mПроверка всех комбинаций из двух флагов:\033[0m"
+for flag1 in "${flags[@]}"; do
+    for flag2 in "${flags[@]}"; do
+        if [ "$flag1" != "$flag2" ]; then
+            check_files "$flag1 $flag2"
+        fi
+    done
+done

@@ -1,4 +1,6 @@
-xyz
-ol
-приве
-dcsjkvbsdbjv;ksjdbfbkjsfdb lsfndlk fdsjkjknsfbnsl;dfnbsfgbnsnfdbknklf jlk sfgnbsfd; nlf lkfsdblnlsk fdkladsvb jnvfdjljn fjkn sfd;j ;jb afdfj;bdfa;jkbfda;jkb fd;jkb df;kjb fd;kjad bf;kjab dff;ajdfba;dfdjkb ;jb dafdf;kjb efafu beroueroieropreokfjk;njkvre varejaervnj;avroi;raeviar ia fdoinn afdoia gfdoirkj jrekjjfjkargkjbar;kbjaer;kjvar;onivaoioio oi oij oipj oi vuisfd nonnrqejkbewr nт
+This is a test file.
+It contains several lines of text.
+Some lines contain the word 'example'.
+This line is an example.
+Another line without the keyword.
+Last line is here to test.
