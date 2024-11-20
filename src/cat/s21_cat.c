@@ -6,8 +6,7 @@
 #include "catFlags.h"
 
 void ParseFlags(int argc, char *argv[], CatFlags *flags, int *exit_status);
-void OpenFiles(int argc, const char *argv[], int optind,
-                  const CatFlags *flags);
+void OpenFiles(int argc, const char *argv[], int optind, const CatFlags *flags);
 
 int main(int argc, char *argv[]) {
   int exit_status = 0;
@@ -23,9 +22,10 @@ int main(int argc, char *argv[]) {
 }
 
 void OpenFiles(int argc, const char *argv[], int optind,
-                  const CatFlags *flags) {
+               const CatFlags *flags) {
   FILE *fp = NULL;
   int index = 1;
+  int previous = '\n';
   if (optind >= argc) {
     fp = stdin;
   }
@@ -33,11 +33,10 @@ void OpenFiles(int argc, const char *argv[], int optind,
     if (i < argc) {
       if (!(fp = fopen(argv[i], "r"))) {
         perror(argv[i]);
-        continue;
       }
     }
     if (fp)
-      ProcessFile(fp, flags, &index);
+      ProcessFile(fp, flags, &index, &previous);
     if (fp && fp != stdin)
       fclose(fp);
     fp = NULL;
@@ -72,7 +71,8 @@ void ParseFlags(int argc, char *argv[], CatFlags *flags, int *exit_status) {
       flags->show_tabs = 1;
     else if (opt == '?') {
       *exit_status = 1;
-      printf("usage: cat [-belnstuv] [file ...]"); }
+      printf("usage: cat [-belnstuv] [file ...]");
+    }
   }
 
   if (flags->number_nonblanck)

@@ -18,26 +18,23 @@ void PrintSpecialChar(int c, const CatFlags *flags) {
     putchar(c);
 }
 
-void ProcessFile(FILE *fp, const CatFlags *flags, int *index) {
+void ProcessFile(FILE *fp, const CatFlags *flags, int *index, int *previous) {
   int c;
-  int previous = '\n'; // Предыдущий символ
-  int line_count = 0;  // Счетчик пустых строк
+  int line_count = 0;  
 
   while ((c = fgetc(fp)) != EOF) {
-    if (flags->squeeze_blank && c == '\n' && previous == '\n') {
+    if (flags->squeeze_blank && c == '\n' && *previous == '\n') {
       line_count++;
-      if (line_count > 1) {
-        continue;
-      }
     } else {
       line_count = 0;
     }
-    if (flags->number_all || (flags->number_nonblanck && c != '\n')) {
-      if (previous == '\n') {
+
+    if (!(flags->squeeze_blank && line_count > 1)) {
+      if ((flags->number_all || (flags->number_nonblanck && c != '\n')) && *previous == '\n') {
         printf("%6d\t", (*index)++);
       }
+      PrintSpecialChar(c, flags);
     }
-    PrintSpecialChar(c, flags);
-    previous = c;
+    *previous = c;
   }
 }
