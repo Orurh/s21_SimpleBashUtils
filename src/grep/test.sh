@@ -1,9 +1,8 @@
 #!/bin/bash
 
 # Имя файла для тестирования
-test_filename="test2.txt"
+test_filename="s21_grep.c"
 
-# Файл с выходными данными для grep
 check_grep_files() {
     flags="$1"
     pattern="$2"
@@ -34,31 +33,40 @@ check_grep_files() {
 single_flags=("-e" "-i" "-v" "-c" "-l" "-n" "-h" "-s" "-o")
 pairs=()
 
-# Генерация пар флагов
+# Генерация пар флагов (без -f)
 for ((i=0; i<${#single_flags[@]}; i++)); do
     for ((j=i; j<${#single_flags[@]}; j++)); do
         pairs+=("${single_flags[i]} ${single_flags[j]}")
     done
 done
 
-# Для проверки одного паттерна
-pattern="example"
-
 # Проверка с одиночными флагами
 echo -e "\033[1;33mПроверка с одиночными флагами:\033[0m"
 for flag in "${single_flags[@]}"; do
-    check_grep_files "$flag" "$pattern"
+    check_grep_files "$flag" "void"
 done
 
 # Проверка с парными флагами
 echo -e "\033[1;33mПроверка с парными флагами:\033[0m"
 for pair in "${pairs[@]}"; do
-    check_grep_files "$pair" "$pattern"
+    check_grep_files "$pair" "void"
 done
 
 # Проверка с флагом -f
 echo -e "\033[1;33mПроверка с флагом -f:\033[0m"
 check_grep_files "-f patterns.txt" "$test_filename"
+
+# Генерация пар флагов (с -f)
+f_pairs=()
+for flag in "${single_flags[@]}"; do
+    f_pairs+=("-f patterns.txt $flag")
+done
+
+# Проверка парных флагов с -f
+echo -e "\033[1;33mПроверка с флагом -f в паре с другими флагами:\033[0m"
+for pair in "${f_pairs[@]}"; do
+    check_grep_files "$pair" "void"
+done
 
 # Очищение временных файлов
 rm grep_output.txt s21_grep_output.txt
