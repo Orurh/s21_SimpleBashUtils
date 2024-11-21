@@ -1,6 +1,0 @@
-This is a test file.
-It contains several lines of text.
-Some lines contain the word 'example'.
-This line is an example.
-Another line without the keyword.
-Last line is here to test.

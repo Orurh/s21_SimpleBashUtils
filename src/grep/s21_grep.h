@@ -10,22 +10,31 @@
 
 // Структура для хранения флагов
 typedef struct {
-  bool e_flag; // Использование регулярного выражения
-  bool i_flag; // Игнорировать регистр
-  bool v_flag; // Инвертировать результат поиска
-  bool c_flag; // Подсчитать количество совпадений
-  bool l_flag; // Показать имя файлов с совпадениями
-  bool n_flag; // Показать номер строки
-  bool h_flag; // Не показывать имена файлов
-  bool s_flag; // Молчание, игнорировать ошибки при открытии файлов
-  bool f_flag; // Чтение паттернов из файла
-  bool o_flag; // Выводить только совпавшие части строки
-  char *pattern;
-  char *pattern_file;
-  int pattern_count;
-  int filename_flag;
-  regex_t *regexes; // Массив регулярных выражений
-  int regex_count;  // Количество паттернов
+  int e_flag, i_flag, v_flag, c_flag, l_flag, n_flag, h_flag, s_flag, f_flag,
+      o_flag, skip_processing;
+  char *combined_pattern;
+  regex_t regex;
+  int error_code;
 } GrepFlags;
 
-#endif // S21_GREP_H
+int ParseArguments(GrepFlags *flags, int argc, char *argv[]);
+void HandleFlagEorF(GrepFlags *flags, const char *optarg, int opt);
+void AddPattern(char **combined_pattern, const char *new_pattern,
+                GrepFlags *flags);
+void CompilePattern(GrepFlags *flags);
+void ApplyFlagsPriority(GrepFlags *flags);
+void FreeResources(GrepFlags *flags);
+void CompilePattern(GrepFlags *flags);
+int CheckMatch(const char *line, const regex_t *regex, int invert_match);
+void ProcessFile(FILE *file, const char *filename, const GrepFlags *flags,
+                 int total_files);
+int ProcessLine(const char *line, int line_number, const GrepFlags *flags,
+                const char *filename, int total_files, int *match_count,
+                int *file_matched);
+void FreeResources(GrepFlags *flags);
+FILE *OpenFile(const char *filename, const GrepFlags *flags);
+void PrintMatchDetails(const char *line, int line_number,
+                       const GrepFlags *flags, const char *filename,
+                       int total_files);
+
+#endif  // S21_GREP_H

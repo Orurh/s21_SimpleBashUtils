@@ -1,72 +1,79 @@
 #!/bin/bash
 
-# Имя файла для тестирования
-test_filename="s21_grep.c"
+# Файлы для тестирования
+filename2="s21_grep.h"
+patterns_file="patterns.txt"
+pattern="void"
+echo "void" >> "$patterns_file"
+echo "return" >> "$patterns_file"
 
-check_grep_files() {
+
+
+# Функция для проверки без флага -f
+check_files() {
     flags="$1"
-    pattern="$2"
-    echo "Проверка grep с флагами: ${flags:-без флагов} с паттерном: '$pattern'"
-
-    # Создание или очистка временных файлов
-    > grep_output.txt
-    > s21_grep_output.txt
-
-    # Без флагов
+    echo "Проверка с флагами: ${flags:-без флагов}"
     if [ -z "$flags" ]; then
-        grep "$pattern" "$test_filename" >> grep_output.txt
-        ./s21_grep "$pattern" "$test_filename" >> s21_grep_output.txt
+        # Без флагов
+        ./s21_grep "$pattern" "$filename"  >> s21_grep.txt
+        grep "$pattern" "$filename" >> grep.txt
     else
         # С флагами
-        grep $flags "$pattern" "$test_filename" >> grep_output.txt
-        ./s21_grep $flags "$pattern" "$test_filename" >> s21_grep_output.txt
+        ./s21_grep $flags "$pattern" "$filename"  >> s21_grep.txt
+        grep $flags "$pattern" "$filename"  >> grep.txt
     fi
 
-    if diff -s s21_grep_output.txt grep_output.txt; then
-        echo -e "\033[1;32mФайлы s21_grep_output.txt и grep_output.txt идентичны\033[0m"
+    if diff -s s21_grep.txt grep.txt; then
+        echo -e "\033[1;32mФайлы s21_grep.txt и grep.txt идентичны\033[0m"
     else
-        echo -e "\033[1;31mФайлы s21_grep_output.txt и grep_output.txt отличаются\033[0m"
+        echo -e "\033[1;31mФайлы s21_grep.txt и grep.txt отличаются\033[0m"
     fi
+    rm s21_grep.txt grep.txt
 }
 
-# Основные флаги для тестирования
-single_flags=("-e" "-i" "-v" "-c" "-l" "-n" "-h" "-s" "-o")
-pairs=()
+# Функция для проверки с флагом -f
+check_files_f() {
+    flags="$1"
+    echo "Проверка с флагами (с использованием patterns.txt): ${flags:-без флагов}"
+    ./s21_grep $flags -f "$patterns_file" "$filename"  >> s21_grep.txt
+    grep $flags -f "$patterns_file" "$filename" >> grep.txt
 
-# Генерация пар флагов (без -f)
-for ((i=0; i<${#single_flags[@]}; i++)); do
-    for ((j=i; j<${#single_flags[@]}; j++)); do
-        pairs+=("${single_flags[i]} ${single_flags[j]}")
+    if diff -s s21_grep.txt grep.txt; then
+        echo -e "\033[1;32mФайлы s21_grep.txt и grep.txt идентичны\033[0m"
+    else
+        echo -e "\033[1;31mФайлы s21_grep.txt и grep.txt отличаются\033[0m"
+    fi
+    rm s21_grep.txt grep.txt
+}
+
+
+
+# Список флагов
+flags=("-e" "-i" "-v" "-c" "-l" "-n" "-h" "-s" "-o")
+
+# Проверка одиночных флагов (без -f)
+echo -e "\033[1;33mПроверка с одиночными флагами (без -f):\033[0m"
+for flag in "${flags[@]}"; do
+    check_files "$flag"
+done
+
+# Проверка комбинаций парных флагов (без -f)
+echo -e "\033[1;33mПроверка комбинаций парных флагов (без -f):\033[0m"
+for flag1 in "${flags[@]}"; do
+    for flag2 in "${flags[@]}"; do
+        if [ "$flag1" != "$flag2" ]; then
+            check_files "$flag1 $flag2"
+        fi
     done
 done
 
-# Проверка с одиночными флагами
-echo -e "\033[1;33mПроверка с одиночными флагами:\033[0m"
-for flag in "${single_flags[@]}"; do
-    check_grep_files "$flag" "void"
-done
-
-# Проверка с парными флагами
-echo -e "\033[1;33mПроверка с парными флагами:\033[0m"
-for pair in "${pairs[@]}"; do
-    check_grep_files "$pair" "void"
-done
-
-# Проверка с флагом -f
+# Проверка флага -f
 echo -e "\033[1;33mПроверка с флагом -f:\033[0m"
-check_grep_files "-f patterns.txt" "$test_filename"
+check_files_f ""
 
-# Генерация пар флагов (с -f)
-f_pairs=()
-for flag in "${single_flags[@]}"; do
-    f_pairs+=("-f patterns.txt $flag")
+Проверка комбинаций -f с другими флагами
+echo -e "\033[1;33mПроверка комбинаций -f с одиночными флагами:\033[0m"
+for flag in "${flags[@]}"; do
+    check_files_f "$flag"
 done
-
-# Проверка парных флагов с -f
-echo -e "\033[1;33mПроверка с флагом -f в паре с другими флагами:\033[0m"
-for pair in "${f_pairs[@]}"; do
-    check_grep_files "$pair" "void"
-done
-
-# Очищение временных файлов
-rm grep_output.txt s21_grep_output.txt
+rm "$patterns_file"

@@ -35,10 +35,8 @@ void OpenFiles(int argc, const char *argv[], int optind,
         perror(argv[i]);
       }
     }
-    if (fp)
-      ProcessFile(fp, flags, &index, &previous);
-    if (fp && fp != stdin)
-      fclose(fp);
+    if (fp) ProcessFile(fp, flags, &index, &previous);
+    if (fp && fp != stdin) fclose(fp);
     fp = NULL;
   }
 }
@@ -75,6 +73,5 @@ void ParseFlags(int argc, char *argv[], CatFlags *flags, int *exit_status) {
     }
   }
 
-  if (flags->number_nonblanck)
-    flags->number_all = 0;
+  if (flags->number_nonblanck) flags->number_all = 0;
 }
